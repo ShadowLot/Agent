@@ -1,10 +1,13 @@
-Code structure : 
-                  | APP (backend)
-                      |__init__.py
-                  |templates (frontend)
-                      | index.html
-                  | requirements.txt (packages)
-                  | README.md
+  Code structure : 
+  
+                    | APP (bacEND)
+                        |__init__.py
+                        
+                    |templates (frontend)
+                        | index.html
+                        
+                    | requirements.txt (packages)
+                    | README.md
 
 Config the app : 
 1. Build Command : pip install -r requirements.txt
