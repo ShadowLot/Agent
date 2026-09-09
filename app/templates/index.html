@@ -2,213 +2,237 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nova AI</title>
 
-    <style>
-        :root {
-            --bg-color: #09090b;
-            --card-bg: #151518;
-            --border-color: #27272a;
-            --accent-glow: #ffffff1f;
-            --text-main: #fafafa;
-            --text-sub: #a1a1aa;
-        }
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:grid;
+    place-items:center;
+    background:#09090b;
+    color:white;
+    font-family:Arial;
+}
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+.card{
+    width:300px;
+    padding:35px;
+    text-align:center;
+    background:#151518;
+    border:1px solid #333;
+    border-radius:25px;
+}
 
-        .card {
-            width: 320px;
-            padding: 40px 28px;
-            text-align: center;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 28px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
+.mic{
+    width:90px;
+    height:90px;
+    border:0;
+    border-radius:50%;
+    font-size:35px;
+    cursor:pointer;
+}
 
-        h2 {
-            margin: 0 0 8px;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
+.status{
+    margin-top:20px;
+    color:#aaa;
+}
 
-        p {
-            margin: 0 0 28px;
-            color: var(--text-sub);
-            font-size: 0.9rem;
-        }
+.song{
+    margin-top:10px;
+    font-size:13px;
+}
 
-        .mic {
-            width: 84px;
-            height: 84px;
-            border: 0;
-            border-radius: 50%;
-            background: #27272a;
-            color: var(--text-main);
-            font-size: 32px;
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-            outline: none;
-        }
-
-        .mic:hover:not(:disabled) {
-            background: #3f3f46;
-            transform: scale(1.04);
-        }
-
-        .mic:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .listening {
-            transform: scale(1.1);
-            background: #ffffff;
-            color: #000;
-            box-shadow: 0 0 0 12px var(--accent-glow);
-            animation: pulse 1.5s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 6px var(--accent-glow); }
-            100% { box-shadow: 0 0 0 18px rgba(255, 255, 255, 0.05); }
-        }
-
-        .status {
-            margin-top: 24px;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .song {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            min-height: 1.2em;
-            word-break: break-word;
-        }
-    </style>
+.listening{
+    transform:scale(1.1);
+    box-shadow:0 0 0 10px #ffffff18;
+}
+</style>
 </head>
 
 <body>
 
-<main class="card">
+<div class="card">
+
     <h2>Nova AI</h2>
+
     <p>Say a song name</p>
 
-    <button id="mic" class="mic" aria-label="Start Voice Command">🎙️</button>
+    <button id="mic" class="mic">
+        🎙️
+    </button>
 
-    <div id="status" class="status" aria-live="polite">Tap microphone</div>
+    <div id="status" class="status">
+        Tap microphone
+    </div>
+
     <div id="song" class="song"></div>
-</main>
+
+</div>
 
 <script>
-    const mic = document.getElementById("mic");
-    const status = document.getElementById("status");
-    const song = document.getElementById("song");
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const mic=document.getElementById("mic");
+const status=document.getElementById("status");
+const song=document.getElementById("song");
 
-    let youtubeTab = null;
-    let listening = false;
+const SpeechRecognition=
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-        status.textContent = "Speech recognition unsupported";
-        mic.disabled = true;
-    } else {
-        const recognition = new SpeechRecognition();
-        recognition.lang = "en-US";
-        recognition.continuous = false;
-        recognition.interimResults = false;
+let youtubeTab=null;
+let listening=false;
 
-        const setStatus = (msg, resetAfter = 0) => {
-            status.textContent = msg;
-            if (resetAfter > 0) {
-                setTimeout(() => {
-                    if (!listening) status.textContent = "Tap microphone";
-                }, resetAfter);
-            }
-        };
+if(!SpeechRecognition){
 
-        recognition.onstart = () => {
-            listening = true;
-            mic.classList.add("listening");
-            setStatus("Listening...");
-        };
+    status.textContent=
+        "Speech recognition unavailable";
 
-        recognition.onend = () => {
-            listening = false;
-            mic.classList.remove("listening");
-        };
+    mic.disabled=true;
 
-        recognition.onerror = (event) => {
-            listening = false;
-            mic.classList.remove("listening");
-            setStatus("Try again", 3000);
-        };
+}else{
 
-        recognition.onresult = async (event) => {
-            const command = event.results[0][0]?.transcript?.trim();
+    const recognition=
+        new SpeechRecognition();
 
-            if (!command) {
-                setStatus("No song detected", 3000);
+    recognition.lang="en-US";
+    recognition.continuous=false;
+    recognition.interimResults=false;
+
+    recognition.onstart=()=>{
+
+        listening=true;
+
+        mic.classList.add("listening");
+
+        status.textContent=
+            "Listening...";
+
+    };
+
+    recognition.onend=()=>{
+
+        listening=false;
+
+        mic.classList.remove("listening");
+
+    };
+
+    recognition.onerror=()=>{
+
+        listening=false;
+
+        mic.classList.remove("listening");
+
+        status.textContent="Try again";
+
+    };
+
+    recognition.onresult=async(event)=>{
+
+        const command=
+            event.results[0][0]
+            .transcript
+            .trim();
+
+        if(!command){
+
+            status.textContent=
+                "No song detected";
+
+            return;
+
+        }
+
+        song.textContent=command;
+
+        status.textContent=
+            "Finding song...";
+
+        try{
+
+            const response=
+                await fetch(
+                    "/youtube/play",
+                    {
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:JSON.stringify({
+                            command:command
+                        })
+                    }
+                );
+
+            const data=
+                await response.json();
+
+            if(!data.success){
+
+                status.textContent=
+                    data.message ||
+                    "Song not found";
+
                 return;
+
             }
 
-            song.textContent = `"${command}"`;
-            setStatus("Finding song...");
+            if(!youtubeTab ||
+               youtubeTab.closed){
 
-            // Pre-open window immediately to prevent browser popup blockers
-            const targetTab = (!youtubeTab || youtubeTab.closed) 
-                ? window.open("about:blank", "NovaYouTube")
-                : youtubeTab;
+                youtubeTab=
+                    window.open(
+                        data.url,
+                        "NovaYouTube"
+                    );
 
-            try {
-                const response = await fetch("/youtube/play", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ command })
-                });
+            }else{
 
-                const data = await response.json();
+                youtubeTab.location.href=
+                    data.url;
 
-                if (!data.success || !data.url) {
-                    if (targetTab && !youtubeTab) targetTab.close();
-                    setStatus(data.message || "Song not found", 3000);
-                    return;
-                }
+                youtubeTab.focus();
 
-                targetTab.location.href = data.url;
-                targetTab.focus();
-                youtubeTab = targetTab;
-
-                setStatus("Playing", 4000);
-            } catch (error) {
-                console.error(error);
-                if (targetTab && !youtubeTab) targetTab.close();
-                setStatus("Server connection failed", 3000);
             }
-        };
 
-        mic.onclick = () => {
-            if (listening) return;
-            try {
-                recognition.start();
-            } catch (error) {
-                console.error("Recognition start failed:", error);
-            }
-        };
-    }
+            status.textContent="Playing";
+
+        }catch(error){
+
+            console.error(error);
+
+            status.textContent=
+                "Server connection failed";
+
+        }
+
+    };
+
+    mic.onclick=()=>{
+
+        if(listening)
+            return;
+
+        try{
+
+            recognition.start();
+
+        }catch(error){
+
+            console.log(error);
+
+        }
+
+    };
+
+}
+
 </script>
 
 </body>
