@@ -12,7 +12,7 @@ body{
     height:100vh;
     display:grid;
     place-items:center;
-    background:purple;
+    background:neon;
     color:white;
     font-family:Arial;
 }
@@ -56,12 +56,12 @@ body{
 
 <div class="card">
 
-    <h1>Novatics AI Agent</h1>
+    <h1>Nova AI Agent</h1>
 
     <p>Say a song name</p>
 
     <button id="mic" class="mic">
-        MIC
+            🎤     
     </button>
 
     <div id="status" class="status">
@@ -220,11 +220,9 @@ if(!SpeechRecognition){
             return;
 
         try{
-
             recognition.start();
 
         }catch(error){
-
             console.log(error);
 
         }
