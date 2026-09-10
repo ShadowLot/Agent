@@ -30,4 +30,11 @@ Output exactly :
 
 Subject : <subject>
 
+BODY:
+<email body>
+
+User command:
+{command}
+"""
+
 
