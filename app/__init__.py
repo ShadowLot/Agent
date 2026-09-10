@@ -13,17 +13,17 @@ from app.gmail import (
 from app.youtube import youtube_bp
 
 def create_app():
-    
+
     app = Flask(__name__)
     CORS(app)
 
-    # Youtube 
+    # YouTube
     app.register_blueprint(
         youtube_bp,
         url_prefix="/youtube"
     )
 
-    # Home 
+    # Home
     @app.route("/")
     def home():
         return render_template("index.html")
@@ -33,16 +33,15 @@ def create_app():
     def html():
         return render_template("index.html")
 
-    #Health
-      @app.route("/health")
+    # Health
+    @app.route("/health")
     def health():
         return jsonify({
             "status": "ok",
             "service": "Nova AI Agent"
         })
 
-    
-       # Gmail AI Agent
+    # Gmail AI Agent
     @app.route("/agent", methods=["POST"])
     def agent():
 
