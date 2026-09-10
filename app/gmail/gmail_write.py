@@ -20,21 +20,21 @@ def extract_email(text) :
     if match : 
         return match.group(0)
 
-match = re.search(
-    r"([\w.+-]+)\s+at\s+([\w.-]+)\s+dot\s+(\w+)",
-    text.lower()
-)
+    match = re.search(
+        r"([\w.+-]+)\s+at\s+([\w.-]+)\s+dot\s+(\w+)",
+        text.lower()
+    )
 
-if match : 
-    return f"{match.group(1)}@{match.group(2)}.{match.group(3)}"
+    if match : 
+        return f"{match.group(1)}@{match.group(2)}.{match.group(3)}"
 
-if CLIENT_EMAIL and any (
-    x in text.lower()
-    for x in ("my client", "the client", "to client", "for my client")
-):
-    return CLIENT_EMAIL
+    if CLIENT_EMAIL and any (
+        x in text.lower()
+        for x in ("my client", "the client", "to client", "for my client")
+    ):
+        return CLIENT_EMAIL
 
-return ""
+    return ""
 
 def create_gmail_url(subject="", body="", recipient=""):
     params = urllib.parse.urlencode({
@@ -45,5 +45,3 @@ def create_gmail_url(subject="", body="", recipient=""):
         "body" : body
     })
     return f"https://mail.google.com/mail/u/0/?{params}"
-    
-
