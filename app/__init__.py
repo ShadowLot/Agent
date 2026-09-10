@@ -50,3 +50,19 @@ def create_app():
             data = request.get_json(silent=True) or {}
             command = data.get("command", "").strip()
 
+            if not command : 
+                return jsonify({
+                    "success" : False, 
+                    "message" : "Command is required"
+                }) , 400
+
+if not is_email_command(command) : 
+    return jsonify({
+    "success" : False, 
+    "message" : "Please give a Gmail command."
+}), 400
+
+                
+
+
+    
