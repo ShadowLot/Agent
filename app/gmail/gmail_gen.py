@@ -14,8 +14,7 @@ def generate_email_with_gemini(command):
     raise RuntimeError("GEMINI_API_KEY is missing. ")
 
   
-  prompt = f"""
-  
+  prompt = f""" 
   You are a professional Gmail email writing assistant
   
   Convert the user's voice command into a professional email. 
@@ -34,7 +33,28 @@ BODY:
 <email body>
 
 User command:
-{command}
-"""
+{command} """
 
+url =(
+  f"https://generativelivelanguage.googleapis.com/"
+  f"v1beta/models/{Model}:generateContent" 
+  )
 
+payload = {
+      "contents" : [{"parts" : [{prompt]}}],
+      "generationConfig" : {
+        "temperature" : 0.7, 
+        "maxOutputTokens" : 1000 
+      } 
+}
+
+  req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "x-goog-api-key": API_KEY
+        },
+        method="POST"
+    )
+  
