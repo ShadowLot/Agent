@@ -47,23 +47,3 @@ def create_gmail_url(subject="", body="", recipient=""):
     return f"https://mail.google.com/mail/u/0/?{params}"
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-)
