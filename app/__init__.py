@@ -63,6 +63,23 @@ if not is_email_command(command) :
 }), 400
 
                 
+recipient = extract_email(command)
+email = generate_email_with_gemini(command)
+
+return jsonify({
+    "success" : True,
+    "type" : "email" 
+    "email_generated" : True,
+    "recipient" : recipient, 
+    "subject" : email["subject"],
+    "body" : email["body"],
+    "gmail_url" : create_gmail_url(
+        email["subject"], 
+        email["body"],
+        recipient
+    )
+})
+
 
 
     
