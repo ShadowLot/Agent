@@ -69,7 +69,7 @@ def create_youtube_url(command):
         return None
 
     return (
-        "https://www.youtube.com/embed/"
-        + video_id
-        + "?autoplay=1&mute=0"
-    ) 
+        "https://www.youtube.com/watch"
+        "?v=" + video_id
+        + "&autoplay=1"
+    )

@@ -12,9 +12,9 @@ body{
     height:100vh;
     display:grid;
     place-items:center;
-    background:#09090b;
+    background:brown;
     color:white;
-    font-family:Arial;
+    font-family:New Times Roman;
 }
 
 .card{
@@ -23,15 +23,15 @@ body{
     text-align:center;
     background:#151518;
     border:1px solid #333;
-    border-radius:25px;
+    border-radius:85px;
 }
 
 .mic{
-    width:90px;
-    height:90px;
+    width:290px;
+    height:290px;
     border:0;
-    border-radius:50%;
-    font-size:35px;
+    border-radius:60%;
+    font-size:66px;
     cursor:pointer;
 }
 
@@ -56,12 +56,12 @@ body{
 
 <div class="card">
 
-    <h2>Nova AI</h2>
+    <h1>Nova AI Agent</h1>
 
     <p>Say a song name</p>
 
     <button id="mic" class="mic">
-        🎙️
+            🎤     
     </button>
 
     <div id="status" class="status">
@@ -220,11 +220,9 @@ if(!SpeechRecognition){
             return;
 
         try{
-
             recognition.start();
 
         }catch(error){
-
             console.log(error);
 
         }
