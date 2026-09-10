@@ -74,8 +74,22 @@ if not subject or not body :
 
 return { 
   "subject" : subject.group(1).strip(),
-  "body" : body.group(1).strip
+  "body" : body.group(1).strip()
 }
+
+except urllib.error.HTTPError as e : 
+if e.code != 429 or attempt == 3:
+  try :
+    detail = e.read().decode()
+  except Exception:
+    details = str(e)
+    raise RuntimeError(f"Gemini API error : {details}")
+
+time.sleep((2 ** attempt) + random.random())
+
+except Exception : 
+if attempt == 3 :
+  raise time.sleep(1)
 
 
 
