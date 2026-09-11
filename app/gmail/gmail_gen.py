@@ -1,14 +1,13 @@
 import os
-import re
 import json
+import re
 import time
 import random
 import urllib.request
 import urllib.error
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 
 def generate_email_with_gemini(command):
     if not API_KEY:
@@ -24,11 +23,11 @@ Rules:
 - Do not explain anything.
 - Do not invent names, dates, prices, companies, attachments, or facts.
 - Keep the email natural and concise.
+- Include an appropriate greeting and closing.
 
 Output exactly:
 
-Subject: <subject>
-
+SUBJECT: <subject>
 BODY:
 <email body>
 
@@ -37,7 +36,7 @@ User command:
 """
 
     url = (
-        f"https://generativelivelanguage.googleapis.com/"
+        f"https://generativelanguage.googleapis.com/"
         f"v1beta/models/{MODEL}:generateContent"
     )
 
@@ -45,8 +44,8 @@ User command:
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 1000,
-        },
+            "maxOutputTokens": 800
+        }
     }
 
     req = urllib.request.Request(
@@ -54,9 +53,9 @@ User command:
         data=json.dumps(payload).encode(),
         headers={
             "Content-Type": "application/json",
-            "x-goog-api-key": API_KEY,
+            "x-goog-api-key": API_KEY
         },
-        method="POST",
+        method="POST"
     )
 
     for attempt in range(4):
@@ -64,39 +63,31 @@ User command:
             with urllib.request.urlopen(req, timeout=30) as response:
                 data = json.loads(response.read().decode())
 
-            # Extract text from response (depends on API shape)
-            try:
-                text = data["candidates"][0]["content"]["parts"][0]["text"]
-            except Exception:
-                # Fallback: stringify whole response
-                text = json.dumps(data)
-
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
             text = re.sub(r"```(?:text)?|```", "", text).strip()
 
-            subject_match = re.search(r"SUBJECT:\s*(.+)", text, re.I)
-            body_match = re.search(r"BODY:\s*([\s\S]+)", text, re.I)
+            subject = re.search(r"SUBJECT:\s*(.+)", text, re.I)
+            body = re.search(r"BODY:\s*([\s\S]+)", text, re.I)
 
-            if not subject_match or not body_match:
+            if not subject or not body:
                 raise RuntimeError("Gemini returned an invalid email format.")
 
             return {
-                "subject": subject_match.group(1).strip(),
-                "body": body_match.group(1).strip(),
+                "subject": subject.group(1).strip(),
+                "body": body.group(1).strip()
             }
 
         except urllib.error.HTTPError as e:
-            # If rate limited, retry with exponential backoff
-            if getattr(e, "code", None) == 429 and attempt < 3:
-                time.sleep((2 ** attempt) + random.random())
-                continue
-            try:
-                details = e.read().decode()
-            except Exception:
-                details = str(e)
-            raise RuntimeError(f"Gemini API error: {details}") from e
+            if e.code != 429 or attempt == 3:
+                try:
+                    detail = e.read().decode()
+                except Exception:
+                    detail = str(e)
+                raise RuntimeError(f"Gemini API error: {detail}")
+
+            time.sleep((2 ** attempt) + random.random())
 
         except Exception:
             if attempt == 3:
                 raise
-            time.sleep((2 ** attempt) + random.random())
-            continue
+            time.sleep(1)
